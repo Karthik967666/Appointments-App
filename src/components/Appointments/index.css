@@ -1,0 +1,20 @@
+.margi {
+  margin: 15px;
+}
+
+.pad {
+  padding: 15px;
+}
+
+.col {
+  color: black;
+  font-weight: bold;
+  height: 2px;
+  background: black;
+  width: 70vw;
+}
+
+.but {
+  background-color: transparent;
+  border-radius: 15px;
+}
