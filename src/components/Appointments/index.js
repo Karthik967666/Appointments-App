@@ -1,45 +1,145 @@
-// eslint-disable-next-line
 import {Component} from 'react'
+import {v4} from 'uuid'
 
-// eslint-disable-next-line
-import {v4 as uuidv4} from 'uuid'
+import CommentItem from '../AppointmentItem'
 
 import './index.css'
 
-class Appointments extends Component {
+const initialContainerBackgroundClassNames = [
+  'amber',
+  'blue',
+  'orange',
+  'emerald',
+  'teal',
+  'red',
+  'light-blue',
+]
+
+class Comments extends Component {
+  state = {
+    nameInput: '',
+    commentInput: '',
+    commentsList: [],
+  }
+
+  deleteComment = commentId => {
+    const {commentsList} = this.state
+
+    this.setState({
+      commentsList: commentsList.filter(comment => comment.id !== commentId),
+    })
+  }
+
+  toggleIsLiked = id => {
+    this.setState(prevState => ({
+      commentsList: prevState.commentsList.map(eachComment => {
+        if (id === eachComment.id) {
+          return {...eachComment, isLiked: !eachComment.isLiked}
+        }
+        return eachComment
+      }),
+    }))
+  }
+
+  renderCommentsList = () => {
+    const {commentsList} = this.state
+
+    return commentsList.map(eachComment => (
+      <CommentItem
+        key={eachComment.id}
+        commentDetails={eachComment}
+        toggleIsLiked={this.toggleIsLiked}
+        deleteComment={this.deleteComment}
+      />
+    ))
+  }
+
+  onAddComment = event => {
+    event.preventDefault()
+    const {nameInput, commentInput} = this.state
+    const initialBackgroundColorClassName = `initial-container ${
+      initialContainerBackgroundClassNames[
+        Math.ceil(
+          Math.random() * initialContainerBackgroundClassNames.length - 1,
+        )
+      ]
+    }`
+    const newComment = {
+      id: v4(),
+      name: nameInput,
+      comment: commentInput,
+      date: new Date(),
+      isLiked: false,
+      initialClassName: initialBackgroundColorClassName,
+    }
+
+    this.setState(prevState => ({
+      commentsList: [...prevState.commentsList, newComment],
+      nameInput: '',
+      commentInput: '',
+    }))
+  }
+
+  onChangeCommentInput = event => {
+    this.setState({
+      commentInput: event.target.value,
+    })
+  }
+
+  onChangeNameInput = event => {
+    this.setState({
+      nameInput: event.target.value,
+    })
+  }
+
   render() {
+    const {nameInput, commentInput, commentsList} = this.state
+
     return (
-      <div>
-        <div className="d-flex flex-row justify-content-center margi">
-          <form className="margi">
-            <h1>Add Appointment</h1>
-            <div className="d-flex flex-column pad">
+      <div className="app-container">
+        <div className="comments-container">
+          <h1 className="app-heading">Add Appointment</h1>
+          <div className="comments-inputs">
+            <form className="form" onSubmit={this.onAddComment}>
               <label htmlFor="title">TITLE</label>
-              <input type="text" id="title" placeholder="enter title" />
-            </div>
-            <div className="d-flex flex-column pad">
-              <label htmlFor="date">DATE</label>
-              <input type="date" id="date" placeholder="dd/mm/yyyy" />
-            </div>
-            <button className="margi" type="submit">
-              Add
-            </button>
-          </form>
-          <div className="margi">
+              <input
+                id="title"
+                type="text"
+                className="name-input"
+                placeholder="Purspose"
+                value={nameInput}
+                onChange={this.onChangeNameInput}
+              />
+              <label htmlFor="date">Date</label>
+              <input
+                id="date"
+                type="date"
+                className="comment-input"
+                value={commentInput}
+                onChange={this.onChangeCommentInput}
+              />
+              <button type="submit" data-testid="star" className="add-button">
+                Add
+              </button>
+            </form>
             <img
-              alt="appointments"
+              className="image"
               src="https://assets.ccbp.in/frontend/react-js/appointments-app/appointments-img.png"
+              alt="appointments"
             />
           </div>
-        </div>
-        <hr className="col" />
-        <div className="d-flex flex-row justify-content-center margi">
-          <h1>Appointments</h1>
-          <button className="but">Starred</button>
+
+          <hr className="line" />
+          <h1 className="heading">
+            <span className="comments-count">{commentsList.length}</span>
+            Appointments
+          </h1>
+          <button data-testid="star">Starred</button>
+          <ul className="comments-list">{this.renderCommentsList()}</ul>
         </div>
       </div>
     )
   }
 }
 
-export default Appointments
+export default Comments
